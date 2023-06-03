@@ -24,7 +24,18 @@ public class JuegoController : ControllerBase
         this.config = config;
         this.environment = environment;
     }
-
+    [HttpPost("guardar")]
+    public IActionResult agregarJuego([FromBody] Juego juego)
+    {
+        if(juego != null)
+        {   
+            _context.Add(juego);
+            _context.SaveChanges();
+            return Ok(juego);
+        }else{
+            return BadRequest("JUEGO ES INVALIDO");
+        }
+    }
 
     [HttpPost("buscar")]
     public async Task<IActionResult> buscarJuego([FromBody] JuegoNombre juego){
@@ -35,15 +46,13 @@ public class JuegoController : ControllerBase
             var _accessToken = await GetAccessToken();
             httpClient.DefaultRequestHeaders.Add("Client-ID", ClientId);
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken.ToString()}");
-            var requestBody = $"fields name,summary, cover.image_id, first_release_date,involved_companies.company.name  ; search \"{juego.nombre}\"; limit 10;";
+            var requestBody = $"fields id, name,summary, cover.image_id, first_release_date,involved_companies.company.name  ; search \"{juego.nombre}\"; limit 10;";
             var response = await httpClient.PostAsync(url, new StringContent(requestBody));
             var games = await response.Content.ReadFromJsonAsync<List<GameApiIGDB>>();
             List<Juego> listaJuegosEncontrados = new List<Juego>();
-            GoogleTranslator traductor = new GoogleTranslator();
             foreach(var game in games)
             {   
                 
-                String descripcion = await Traductor.traducir(game.summary);
                 long milisegundos = game.first_release_date; // Ejemplo de milisegundos
                 DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                     .AddMilliseconds(milisegundos);
@@ -52,8 +61,9 @@ public class JuegoController : ControllerBase
                 string urlImagen = $"https://images.igdb.com/igdb/image/upload/t_cover_big/{game.cover.image_id}.jpg";
                 Juego juegoAux = new Juego
                     {
+                        Id = game.id,
                         Nombre = game.name,
-                        Descripcion = descripcion,
+                        Descripcion = game.summary,
                         Autor = game.involved_companies[0].Company.Name,
                         fechaLanzamiento = DateTime.Parse(fechaFormateada),
                         Portada = urlImagen
@@ -65,34 +75,8 @@ public class JuegoController : ControllerBase
         }
 
     }
-    // public async Task<byte[]> ObtenerImagen(int imageId)
-    // {
-    //     using (var httpClient = new HttpClient())
-    //     {
-    //         String url = "https://api.igdb.com/v4/games";
-    //         var _accessToken = await GetAccessToken();
-    //         var request = new HttpRequestMessage(HttpMethod.Post, $"{url}covers");
-    //         request.Headers.Add("Client-ID", ClientId);
-    //         request.Headers.Add("Authorization", $"Bearer {_accessToken}");
 
-    //         // Especificar el campo "image" y filtrar por el image_id
-    //         var query = $"fields image; where id = {imageId};";
-    //         request.Content = new StringContent(query);
-
-    //         var response = await httpClient.SendAsync(request);
-    //         response.EnsureSuccessStatusCode();
-
-    //         var jsonResponse = await response.Content.ReadAsStringAsync();
-    //         var imagen = JsonConvert.DeserializeObject<List<Cover>>(jsonResponse);
-
-    //         // Obtener la imagen en bytes
-    //         var imageData = Convert.FromBase64String(imagen[0].Image);
-
-    //         return imageData;
-    //     }
-    // }
-
-    [HttpPost("guardar")]
+    [HttpPost]
     public
     static async Task<string> GetAccessToken()
     {
@@ -124,15 +108,5 @@ public class JuegoController : ControllerBase
 
 
 
-    public class GoogleTranslator
-{
-    public string TranslateText(string text, string targetLanguage)
-    {
-        TranslationClient client = TranslationClient.Create();
-
-        TranslationResult result = client.TranslateText(text, targetLanguage);
-
-        return result.TranslatedText;
-    }
-}
+    
 }

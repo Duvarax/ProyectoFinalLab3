@@ -6,6 +6,7 @@ namespace ProyectoFinalLab3.Models;
 
 public class GameApiIGDB
 {
+    public int id {get; set;}
     public String name {get; set;}
     public String summary {get; set;}
     public Cover cover {get; set;}
