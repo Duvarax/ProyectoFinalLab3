@@ -77,7 +77,18 @@ public class JuegoController : ControllerBase
     }
 
     [HttpPost]
-    public
+    public IActionResult obtenerJuego([FromBody] Juego juego)
+    {
+        int count = _context.Juegos.Count(j => j.Nombre == juego.Nombre);
+        if(count == 0){
+            return Ok(agregarJuego(juego));
+        }else{
+            var buscarJuego = _context.Juegos.FirstOrDefault(j => j.Id == juego.Id);
+            return Ok(buscarJuego);
+        }
+    }
+
+
     static async Task<string> GetAccessToken()
     {
         String clientId = "hrf9wxam9zk4vcvevscji61l2jr8wj";

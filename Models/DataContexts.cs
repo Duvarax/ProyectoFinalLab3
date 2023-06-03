@@ -13,5 +13,7 @@ namespace ProyectoFinalLab3.Models;
 		public DbSet<Pregunta> Preguntas {get; set;}
 		public DbSet<Usuario> Usuarios {get; set;}
 
+		public DbSet<Respuesta> Respuestas {get; set;}
+
 		
 	}

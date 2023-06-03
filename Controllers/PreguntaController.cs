@@ -23,10 +23,34 @@ public class PreguntaController : ControllerBase
         this.environment = environment;
     }
 
-    // [HttpPost]
-    // public IActionResult altaPregunta([FromBody] Pregunta pregunta)
-    // {
+     [HttpPost("guardar")]
+     public IActionResult altaPregunta([FromBody] Pregunta pregunta)
+     {
+        if(pregunta != null)
+        {
+            _context.Add(pregunta);
+            return Ok(_context.SaveChanges());
+        }else
+        {
+            return BadRequest("Pregunta invalida");
+        }
+     }
 
-    // }
+     [HttpGet]
+     public IActionResult obtenerPreguntas()
+     {
+        Usuario usuario = ObtenerUsuarioLogueado();
+
+        return Ok(_context.Preguntas.Where(p => p.id_usuario == usuario.Id).ToList());
+     }
+
+     	private Usuario ObtenerUsuarioLogueado()
+    {
+        var email = User.Identity.Name;
+        var usuario = _context.Usuarios.FirstOrDefault(p => p.Email == email);
+        return usuario;
+    }
+
+
     
 }
