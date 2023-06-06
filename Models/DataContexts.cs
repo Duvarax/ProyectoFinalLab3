@@ -15,5 +15,9 @@ namespace ProyectoFinalLab3.Models;
 
 		public DbSet<Respuesta> Respuestas {get; set;}
 
+		public DbSet<Comentario> Comentarios {get; set;}
+
+		public DbSet<Valoracion> Valoraciones {get; set;}
+
 		
 	}

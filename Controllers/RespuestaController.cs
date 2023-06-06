@@ -5,6 +5,7 @@ using ProyectoFinalLab3.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text;
+using System.Linq;
 
 namespace ProyectoFinalLab3.Controllers;
 
@@ -57,13 +58,22 @@ public class RespuestaController : ControllerBase
         {
             return Unauthorized();
         }
-
-        return Ok(_context.Respuestas
+        var valoraciones = _context.Valoraciones.Where(v => v.respuesta.id_pregunta == pregunta.Id).ToList();
+        List<OrdenRespuestas> ordenRespuestas = new List<OrdenRespuestas>();
+        var respuestas = _context.Respuestas
         .Include(r => r.pregunta)
         .Include(r => r.usuario)
         .Where(r => r.id_pregunta == pregunta.Id)
-        .ToList()
-        );
+        .ToList();
+        foreach (var respuesta in respuestas)
+        {
+            OrdenRespuestas orden = new OrdenRespuestas();
+            orden.cantidad = _context.Valoraciones.Count(v => v.id_respuesta == respuesta.Id);
+            orden.respuesta = respuesta;
+            ordenRespuestas.Add(orden);
+        }
+        var respuestasOrdenadas = ordenRespuestas.OrderByDescending(o => o.cantidad).ToList();
+        return Ok(respuestasOrdenadas);
      }
 
      	private Usuario ObtenerUsuarioLogueado()

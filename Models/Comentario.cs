@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoFinalLab3.Models;
 
-public class Respuesta
+public class Comentario
 {   
     public int Id {get; set;}
     public string? Texto {get; set;}
@@ -14,17 +14,13 @@ public class Respuesta
     public string? captura {get; set;}
     [NotMapped]
     public IFormFile? capturaFile {get; set;}
-    public int? id_pregunta {get; set;}
-    [ForeignKey(nameof(id_pregunta))]
-    public Pregunta? pregunta {get; set;}
-
-    [NotMapped]
-    public ICollection<Valoracion> Valoraciones {get; set;}
-
+    public int? id_respuesta {get; set;}
+    [ForeignKey(nameof(id_respuesta))]
+    public Respuesta? respuesta {get; set;}
     
 
 
-    public Respuesta()
+    public Comentario()
     {
        
     }

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using ProyectoFinalLab3.Models;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -11,13 +11,13 @@ namespace ProyectoFinalLab3.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class PreguntaController : ControllerBase
+public class ComentarioController : ControllerBase
 {   
     private readonly DataContext _context;
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
 
-    public PreguntaController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
+    public ComentarioController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
     {
         this._context = context;
         this.config = config;
@@ -25,41 +25,45 @@ public class PreguntaController : ControllerBase
     }
 
      [HttpPost("guardar")]
-     public IActionResult altaPregunta([FromBody] Pregunta pregunta)
+     public IActionResult altaComentario([FromBody] Comentario comentario)
      {
-        if(pregunta != null)
+        if(comentario != null)
         {
-            _context.Add(pregunta);
+            _context.Add(comentario);
             return Ok(_context.SaveChanges());
         }else
         {
-            return BadRequest("Pregunta invalida");
+            return BadRequest("Comentario invalido");
         }
      }
-
-      [HttpDelete("eliminar")]
-     public IActionResult bajaPregunta([FromBody] Pregunta pregunta)
+     [HttpDelete("eliminar")]
+     public IActionResult bajaComentario([FromBody] Comentario comentario)
      {
-        if(pregunta != null)
+        if(comentario != null)
         {
-            _context.Remove(pregunta);
+            _context.Remove(comentario);
             return Ok(_context.SaveChanges());
         }else
         {
-            return BadRequest("Pregunta invalida");
+            return BadRequest("comentario invalido");
         }
      }
 
-     [HttpGet]
-     public IActionResult obtenerPreguntas()
+     [HttpPost]
+     public IActionResult obtenerComentarios([FromBody] Respuesta respuesta)
      {
         Usuario usuario = ObtenerUsuarioLogueado();
+        if(usuario == null)
+        {
+            return Unauthorized();
+        }
 
-        return Ok(_context.Preguntas
+        return Ok(_context.Comentarios
+        .Include(r => r.respuesta)
         .Include(r => r.usuario)
-        .Include(r => r.juego)
-        .Where(p => p.id_usuario == usuario.Id)
-        .ToList());
+        .Where(r => r.id_respuesta == respuesta.Id)
+        .ToList()
+        );
      }
 
      	private Usuario ObtenerUsuarioLogueado()
