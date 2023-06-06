@@ -11,13 +11,13 @@ namespace ProyectoFinalLab3.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ValoracionController : ControllerBase
+public class RecienteController : ControllerBase
 {   
     private readonly DataContext _context;
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
 
-    public ValoracionController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
+    public RecienteController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
     {
         this._context = context;
         this.config = config;
