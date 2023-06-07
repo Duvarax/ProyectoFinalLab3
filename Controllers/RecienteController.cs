@@ -24,29 +24,35 @@ public class RecienteController : ControllerBase
         this.environment = environment;
     }
 
+    [HttpGet]
+    public IActionResult obtenerJuegosRecientes()
+    {
+        Usuario usuario = ObtenerUsuarioLogueado();
+        var juegosRecientes = _context.Recientes.Include(r => r.juego).Where(r => r.id_usuario == usuario.Id).Select(r => r.juego);
+        return Ok(juegosRecientes);
+        
+    }
+
      [HttpPost("guardar")]
-     public IActionResult altaValoracion([FromBody] Valoracion valoracion)
+     public IActionResult altaReciente([FromBody] Reciente reciente)
      {
         Usuario usuario = ObtenerUsuarioLogueado();
-        int countUserVal = _context.Valoraciones.Count(v => v.id_usuario == usuario.Id && v.id_respuesta==valoracion.id_respuesta);
-        if(countUserVal > 0){
-            return Ok(false);
-        }
-        if(valoracion != null)
+
+        if(reciente != null)
         {
-            _context.Add(valoracion);
+            _context.Add(reciente);
             return Ok(_context.SaveChanges());
         }else
         {
-            return BadRequest("Valoracion invalida");
+            return BadRequest("Reciente invalido");
         }
      }
      [HttpDelete("eliminar")]
-     public IActionResult bajaValoracion([FromBody] Valoracion valoracion)
+     public IActionResult bajaReciente([FromBody] Reciente reciente)
      {
-        if(valoracion != null)
+        if(reciente != null)
         {
-            _context.Remove(valoracion);
+            _context.Remove(reciente);
             return Ok(_context.SaveChanges());
         }else
         {

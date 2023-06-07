@@ -18,6 +18,7 @@ namespace ProyectoFinalLab3.Models;
 		public DbSet<Comentario> Comentarios {get; set;}
 
 		public DbSet<Valoracion> Valoraciones {get; set;}
+		public DbSet<Reciente> Recientes {get; set;}
 
 		
 	}
