@@ -24,6 +24,7 @@ public class RecienteController : ControllerBase
         this.environment = environment;
     }
 
+
     [HttpGet]
     public IActionResult obtenerJuegosRecientes()
     {

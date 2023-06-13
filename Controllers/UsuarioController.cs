@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 
 namespace ProyectoFinalLab3.Controllers;
 
@@ -34,11 +35,15 @@ public class UsuarioController : ControllerBase
     public async Task<IActionResult> login([FromBody] LoginView loginView)
     {
         try
-        {
+        {   
+            if(!ValidarCorreoElectronico(loginView.Email))
+            {
+                return BadRequest("Email no valido");
+            }
             var usuario = _context.Usuarios.FirstOrDefault(x => x.Email == loginView.Email);
             if (usuario == null)
             {
-                return NotFound();
+                return NotFound("Dicho email no se encuentra registrado");
             }
 
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
@@ -85,9 +90,17 @@ public class UsuarioController : ControllerBase
     public async Task<IActionResult> registroUsuario([FromBody] Usuario usuario){
         try
         {
-            int count = _context.Usuarios.Count(x => x.Email == usuario.Email);
-            if(count >= 1){
+            if(!ValidarCorreoElectronico(usuario.Email))
+            {
+                return BadRequest("Email no valido");
+            }
+            int countEmail = _context.Usuarios.Count(x => x.Email == usuario.Email);
+            if(countEmail >= 1){
                 return BadRequest("Email ya esta ocupado");
+            }
+            int countNickname = _context.Usuarios.Count(x => x.NombreUsuario == usuario.NombreUsuario);
+            if(countNickname >= 1){
+                return BadRequest("Nombre de usuario ya existe");
             }
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: usuario.Clave,
@@ -192,6 +205,19 @@ public class UsuarioController : ControllerBase
 
         
     }
+
+    public bool ValidarCorreoElectronico(string correo)
+{
+    try
+    {
+        MailAddress mailAddress = new MailAddress(correo);
+        return true; // La dirección de correo electrónico es válida
+    }
+    catch (FormatException)
+    {
+        return false; // La dirección de correo electrónico no es válida
+    }
+}
 
 
 }
