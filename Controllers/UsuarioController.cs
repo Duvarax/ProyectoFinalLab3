@@ -10,6 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
+using System.Reflection;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace ProyectoFinalLab3.Controllers;
 
@@ -21,6 +24,7 @@ public class UsuarioController : ControllerBase
     private readonly DataContext _context;
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
+    private Cloudinary cloudinary;
     private const string ClientId = "hrf9wxam9zk4vcvevscji61l2jr8wj";
     private const string ClientSecret = "1az53ys5j6yxmd2t0oku561ouci6qh";
     public UsuarioController(DataContext context, IConfiguration config, IWebHostEnvironment environment, IHttpClientFactory _httpClientFactory)
@@ -28,6 +32,7 @@ public class UsuarioController : ControllerBase
         this._context = context;
         this.config = config;
         this.environment = environment;
+        cloudinary = new Cloudinary(new Account(config["cloud-name"], config["cloud-key"], config["cloud-secret"]));
     }
 
     [HttpPost("login")]
@@ -157,7 +162,27 @@ public class UsuarioController : ControllerBase
     {
         Usuario usuarioActual = ObtenerUsuarioLogueado();
         int count = _context.Usuarios.Count(x => x.Email == usuarioEditado.Email);
-        if(usuarioActual.Clave == usuarioEditado.Clave){
+
+        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: usuarioEditado.Clave,
+                salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 1000,
+                numBytesRequested: 256 / 8));
+
+        if(usuarioActual.Clave == hashed){
+            if(usuarioEditado.Nombre == null || usuarioEditado.Nombre == "" || usuarioEditado.Nombre == " "){
+                usuarioEditado.Nombre = usuarioActual.Nombre;
+            }
+            if(usuarioEditado.Apellido == null || usuarioEditado.Apellido == "" || usuarioEditado.Apellido == " "){
+                usuarioEditado.Apellido = usuarioActual.Apellido;
+            }
+            if(usuarioEditado.Email == null || usuarioEditado.Email == "" || usuarioEditado.Email == " "){
+                usuarioEditado.Email = usuarioActual.Email;
+            }
+            if(usuarioEditado.NombreUsuario == null || usuarioEditado.NombreUsuario == "" || usuarioEditado.NombreUsuario == " "){
+                usuarioEditado.NombreUsuario = usuarioActual.NombreUsuario;
+            }
 
             usuarioActual.Nombre = usuarioEditado.Nombre;
             usuarioActual.Apellido = usuarioEditado.Apellido;
@@ -178,16 +203,21 @@ public class UsuarioController : ControllerBase
         
     }
 
+
     [HttpPut("editar-contraseña")]
     public IActionResult modificarContraseña([FromBody] EditContraseñaView editContraseña)
     {
         Usuario usuarioActual = ObtenerUsuarioLogueado();
+        if(usuarioActual == null){
+            return Unauthorized();
+        }
         string contraseña_antigua = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: editContraseña.contraseñaAntigua,
                 salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
                 prf: KeyDerivationPrf.HMACSHA1,
                 iterationCount: 1000,
                 numBytesRequested: 256 / 8));
+                
         string contraseña_nueva = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: editContraseña.contraseñaNueva,
                 salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
@@ -205,6 +235,40 @@ public class UsuarioController : ControllerBase
 
         
     }
+
+    [HttpPut("cambiar-foto")]
+    public IActionResult cambiarFoto(IFormFile imagen){
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        // Upload
+
+        var tempPath = Path.GetTempFileName();
+        using (var stream = new FileStream(tempPath, FileMode.Create))
+        {
+            imagen.CopyToAsync(stream);
+        }
+        
+
+        var uploadParams = new ImageUploadParams()
+        {
+            File = new FileDescription(tempPath),
+            UniqueFilename = true,
+            PublicIdPrefix = "gamerask_"
+
+        };
+        var uploadResults = cloudinary.Upload(uploadParams);
+        
+        
+
+        
+        usuarioLogeado.Imagen = uploadResults.Url.ToString();
+
+        _context.SaveChanges();
+        return Ok(usuarioLogeado.Imagen);
+    }
+
+    
+   
+    
 
     public bool ValidarCorreoElectronico(string correo)
 {

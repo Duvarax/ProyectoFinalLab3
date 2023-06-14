@@ -61,6 +61,12 @@ public class PreguntaController : ControllerBase
         .Where(p => p.id_usuario == usuario.Id)
         .ToList());
      }
+     [HttpPost("cantidad")]
+     public IActionResult obtenerCantidadPreguntas([FromBody] Juego juego)
+     {
+        int count = _context.Preguntas.Count(r => r.id_juego == juego.Id);
+        return Ok(count);
+     }
 
      	private Usuario ObtenerUsuarioLogueado()
     {

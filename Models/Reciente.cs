@@ -12,5 +12,6 @@ public class Reciente
     public int id_usuario {get; set;}
     [ForeignKey(nameof(id_usuario))]
     public Usuario? usuario {get; set;}
+    public int Cantidad {get; set;}
 
 }

@@ -87,6 +87,7 @@ public class JuegoController : ControllerBase
             return Ok(buscarJuego);
         }
     }
+    
 
 
     static async Task<string> GetAccessToken()

@@ -29,7 +29,10 @@ public class RecienteController : ControllerBase
     public IActionResult obtenerJuegosRecientes()
     {
         Usuario usuario = ObtenerUsuarioLogueado();
-        var juegosRecientes = _context.Recientes.Include(r => r.juego).Where(r => r.id_usuario == usuario.Id).Select(r => r.juego);
+        if(usuario == null){
+            return Unauthorized();
+        }
+        var juegosRecientes = _context.Recientes.Include(r => r.juego).Where(r => r.id_usuario == usuario.Id).OrderByDescending(r => r.Cantidad).Take(3).Select(r => r.juego);
         return Ok(juegosRecientes);
         
     }
@@ -39,8 +42,14 @@ public class RecienteController : ControllerBase
      {
         Usuario usuario = ObtenerUsuarioLogueado();
 
+        Reciente recienteExiste = _context.Recientes.FirstOrDefault(r => r.id_juego == reciente.id_juego && r.id_usuario == reciente.id_usuario);
+        if(recienteExiste != null){
+            recienteExiste.Cantidad += 1;
+            return Ok(_context.SaveChanges());
+        }
         if(reciente != null)
-        {
+        {   
+            reciente.Cantidad = 1;
             _context.Add(reciente);
             return Ok(_context.SaveChanges());
         }else
