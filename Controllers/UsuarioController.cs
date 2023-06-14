@@ -25,8 +25,6 @@ public class UsuarioController : ControllerBase
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
     private Cloudinary cloudinary;
-    private const string ClientId = "hrf9wxam9zk4vcvevscji61l2jr8wj";
-    private const string ClientSecret = "1az53ys5j6yxmd2t0oku561ouci6qh";
     public UsuarioController(DataContext context, IConfiguration config, IWebHostEnvironment environment, IHttpClientFactory _httpClientFactory)
     {
         this._context = context;
@@ -247,7 +245,7 @@ public class UsuarioController : ControllerBase
             imagen.CopyToAsync(stream);
         }
         
-
+        
         var uploadParams = new ImageUploadParams()
         {
             File = new FileDescription(tempPath),
@@ -264,6 +262,36 @@ public class UsuarioController : ControllerBase
 
         _context.SaveChanges();
         return Ok(usuarioLogeado.Imagen);
+    }
+
+    [HttpPut("cambiar-portada")]
+    public IActionResult cambiarPortada(IFormFile imagen){
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        // Upload
+
+        var tempPath = Path.GetTempFileName();
+        using (var stream = new FileStream(tempPath, FileMode.Create))
+        {
+            imagen.CopyToAsync(stream);
+        }
+        
+        
+        var uploadParams = new ImageUploadParams()
+        {
+            File = new FileDescription(tempPath),
+            UniqueFilename = true,
+            PublicIdPrefix = "gamerask_"
+
+        };
+        var uploadResults = cloudinary.Upload(uploadParams);
+        
+        
+
+        
+        usuarioLogeado.Portada = uploadResults.Url.ToString();
+
+        _context.SaveChanges();
+        return Ok(usuarioLogeado.Portada);
     }
 
     
