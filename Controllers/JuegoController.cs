@@ -24,6 +24,12 @@ public class JuegoController : ControllerBase
         this.config = config;
         this.environment = environment;
     }
+
+    [HttpGet("obtener")]
+    public IActionResult obtenerJuegos(){
+        
+        return Ok(_context.Juegos.ToList());
+    }
     [HttpPost("guardar")]
     public IActionResult agregarJuego([FromBody] Juego juego)
     {

@@ -26,9 +26,10 @@ public class PreguntaController : ControllerBase
 
      [HttpPost("guardar")]
      public IActionResult altaPregunta([FromBody] Pregunta pregunta)
-     {
+     {  
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
         if(pregunta != null)
-        {
+        {   pregunta.id_usuario = usuarioLogeado.Id;
             _context.Add(pregunta);
             return Ok(_context.SaveChanges());
         }else
@@ -50,10 +51,23 @@ public class PreguntaController : ControllerBase
         }
      }
 
+     [HttpPost("retener-captura")]
+     public IActionResult retenerCaptura(IFormFile captura){
+         var tempPath = Path.GetTempFileName();
+        using (var stream = new FileStream(tempPath, FileMode.Create))
+        {
+            captura.CopyToAsync(stream);
+        }
+        return Ok(tempPath);
+     }
+
      [HttpGet]
      public IActionResult obtenerPreguntas()
      {
         Usuario usuario = ObtenerUsuarioLogueado();
+        if(usuario == null){
+            return Unauthorized();
+        }
 
         return Ok(_context.Preguntas
         .Include(r => r.usuario)

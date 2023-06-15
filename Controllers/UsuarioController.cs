@@ -261,6 +261,8 @@ public class UsuarioController : ControllerBase
         usuarioLogeado.Imagen = uploadResults.Url.ToString();
 
         _context.SaveChanges();
+        uploadParams = null;
+        uploadResults = null;
         return Ok(usuarioLogeado.Imagen);
     }
 
