@@ -262,11 +262,13 @@ public class UsuarioController : ControllerBase
         
         usuarioLogeado.Imagen = uploadResults.Url.ToString();
         usuarioLogeado.publicIdImagen = uploadResults.PublicId;
-
+        ImagenAux img = new ImagenAux();
+        img.publicId = uploadResults.PublicId;
+        img.urlImagen = uploadResults.Url.ToString();
         _context.SaveChanges();
         uploadParams = null;
         uploadResults = null;
-        return Ok(usuarioLogeado.Imagen);
+        return Ok(img);
     }
 
     [HttpPut("cambiar-portada")]

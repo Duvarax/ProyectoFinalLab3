@@ -17,6 +17,8 @@ public class Pregunta
     public int? id_juego {get; set;}
     [ForeignKey(nameof(id_juego))]
     public Juego ?juego {get; set;}
+
+    public string? publicIdCaptura {get; set;}
     
 
 

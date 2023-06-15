@@ -27,50 +27,64 @@ public class PreguntaController : ControllerBase
         this.config = config;
         this.environment = environment;
         cloudinary = new Cloudinary(new Account(config["cloud-name"], config["cloud-key"], config["cloud-secret"]));
-        capturaUrl = "";
     }
 
      [HttpPost("guardar")]
-     public IActionResult altaPregunta([FromBody] Pregunta pregunta)
+     public async Task<IActionResult> altaPregunta([FromBody] Pregunta pregunta)
      {  
         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
-        if(pregunta != null)
-        {  
-            pregunta.fechaCreacion = DateTime.Now;
-            pregunta.id_usuario = usuarioLogeado.Id;
-            if(capturaUrl == "" || capturaUrl == null){
-                pregunta.captura = capturaUrl;
-            }
-            _context.Add(pregunta);
-            return Ok(_context.SaveChanges());
-        }else
-        {
-            return BadRequest("Pregunta invalida");
+        if(usuarioLogeado == null){
+            return Unauthorized();
         }
+        
+        pregunta.fechaCreacion = DateTime.Now;
+        pregunta.id_usuario = usuarioLogeado.Id;
+        pregunta.id_juego = pregunta.juego.Id;
+        pregunta.juego = null;
+        pregunta.usuario = null;
+        _context.Add(pregunta);
+        _context.SaveChanges();
+        return Ok(pregunta);
      }
-     [HttpPost("captura")]
-     public async Task<IActionResult> setCaptura(IFormFile captura){
-         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
-        // Upload
 
-        var tempPath = Path.GetTempFileName();
-        using (var stream = new FileStream(tempPath, FileMode.Create))
-        {
-            await captura.CopyToAsync(stream);
-        }
+    //  public void setCapturaAPregunta(){
+    //     Pregunta pregunta1 = _context.Preguntas
+    //     .OrderByDescending(p => p.Id)
+    //     .First();
+    //     int ultimoId = pregunta1.Id;
+    //     ImagenAux imgAux = _context.imagenaux.First();
+    //     Pregunta pregunta = _context.Preguntas.First(x => x.Id == ultimoId);
+    //     pregunta.captura = imgAux.urlImagen;
+    //     _context.SaveChanges();
+    //  }
+      [HttpPost("captura")]
+      public async Task<IActionResult> setCaptura(IFormFile captura){
+          Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+          //Upload
 
-         var uploadParams = new ImageUploadParams()
-        {
-            File = new FileDescription(tempPath),
-            UniqueFilename = true,
-            PublicIdPrefix = "gamerask_"
+         var tempPath = Path.GetTempFileName();
+         using (var stream = new FileStream(tempPath, FileMode.Create))
+         {
+             await captura.CopyToAsync(stream);
+         }
 
-        };
-        var uploadResults = await cloudinary.UploadAsync(uploadParams);
+          var uploadParams = new ImageUploadParams()
+         {
+             File = new FileDescription(tempPath),
+             UniqueFilename = true,
+             PublicIdPrefix = "gamerask_"
 
-        capturaUrl = uploadResults.Url.ToString();
-        return Ok(capturaUrl);
-     }
+         };
+         var uploadResults = await cloudinary.UploadAsync(uploadParams);
+        ImagenAux img = new ImagenAux();
+        img.publicId = uploadResults.PublicId;
+        img.urlImagen = uploadResults.Url.ToString();
+        _context.Add(img);
+        _context.SaveChanges();
+        
+        
+         return Ok(img);
+      }
 
       [HttpDelete("eliminar")]
      public IActionResult bajaPregunta([FromBody] Pregunta pregunta)
@@ -99,6 +113,19 @@ public class PreguntaController : ControllerBase
         .Include(r => r.juego)
         .Where(p => p.id_usuario == usuario.Id)
         .ToList());
+     }
+
+     [HttpPost("juego")]
+     public IActionResult obtenerPreguntasXJuego([FromBody] Juego juego){
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        if(usuarioLogeado == null){
+            return Unauthorized();
+        }
+        var listaPreguntas = _context.Preguntas
+        .Include(r => r.usuario)
+        .Include(r => r.juego)
+        .Where(p => p.id_juego == juego.Id);
+        return Ok(listaPreguntas);
      }
      [HttpPost("cantidad")]
      public IActionResult obtenerCantidadPreguntas([FromBody] Juego juego)
