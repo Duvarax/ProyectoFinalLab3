@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using ProyectoFinalLab3.Models;
 using Newtonsoft.Json;
 using System.Text;
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 
 namespace ProyectoFinalLab3.Controllers;
 
@@ -16,12 +18,16 @@ public class PreguntaController : ControllerBase
     private readonly DataContext _context;
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
+    private Cloudinary cloudinary;
+    public static string capturaUrl;
 
     public PreguntaController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
     {
         this._context = context;
         this.config = config;
         this.environment = environment;
+        cloudinary = new Cloudinary(new Account(config["cloud-name"], config["cloud-key"], config["cloud-secret"]));
+        capturaUrl = "";
     }
 
      [HttpPost("guardar")]
@@ -29,13 +35,41 @@ public class PreguntaController : ControllerBase
      {  
         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
         if(pregunta != null)
-        {   pregunta.id_usuario = usuarioLogeado.Id;
+        {  
+            pregunta.fechaCreacion = DateTime.Now;
+            pregunta.id_usuario = usuarioLogeado.Id;
+            if(capturaUrl == "" || capturaUrl == null){
+                pregunta.captura = capturaUrl;
+            }
             _context.Add(pregunta);
             return Ok(_context.SaveChanges());
         }else
         {
             return BadRequest("Pregunta invalida");
         }
+     }
+     [HttpPost("captura")]
+     public async Task<IActionResult> setCaptura(IFormFile captura){
+         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        // Upload
+
+        var tempPath = Path.GetTempFileName();
+        using (var stream = new FileStream(tempPath, FileMode.Create))
+        {
+            await captura.CopyToAsync(stream);
+        }
+
+         var uploadParams = new ImageUploadParams()
+        {
+            File = new FileDescription(tempPath),
+            UniqueFilename = true,
+            PublicIdPrefix = "gamerask_"
+
+        };
+        var uploadResults = await cloudinary.UploadAsync(uploadParams);
+
+        capturaUrl = uploadResults.Url.ToString();
+        return Ok(capturaUrl);
      }
 
       [HttpDelete("eliminar")]
@@ -51,15 +85,6 @@ public class PreguntaController : ControllerBase
         }
      }
 
-     [HttpPost("retener-captura")]
-     public IActionResult retenerCaptura(IFormFile captura){
-         var tempPath = Path.GetTempFileName();
-        using (var stream = new FileStream(tempPath, FileMode.Create))
-        {
-            captura.CopyToAsync(stream);
-        }
-        return Ok(tempPath);
-     }
 
      [HttpGet]
      public IActionResult obtenerPreguntas()

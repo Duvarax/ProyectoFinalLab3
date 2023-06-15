@@ -63,8 +63,31 @@ public class JuegoController : ControllerBase
                 DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                     .AddMilliseconds(milisegundos);
 
+                string urlImagen;
+                if(game.cover == null){
+                    Cover covr = new Cover();
+                    covr.id = 0;
+                    covr.image_id = "https://res.cloudinary.com/dhg4fafod/image/upload/v1686803043/dguxtrvp4fscpxbxobhm.png";
+                    urlImagen = "https://res.cloudinary.com/dhg4fafod/image/upload/v1686803043/dguxtrvp4fscpxbxobhm.png";
+                    game.cover = covr;
+                }else{
+                    urlImagen = $"https://images.igdb.com/igdb/image/upload/t_cover_big/{game.cover.image_id}.jpg";
+                }
+                if(game.summary == null){
+                    game.summary = "summary dont exist";
+                }
+                if(game.involved_companies == null){
+                    
+                    InvolvedCompany ic = new InvolvedCompany();
+                    Company c = new Company();
+                    c.Name = "Company dont exist";
+                    ic.Company = c;
+                    InvolvedCompany[] compañias = new InvolvedCompany[1];
+                    compañias[0] = ic;
+                    game.involved_companies = compañias;
+                }
                 string fechaFormateada = dateTime.ToString("dd-MM-yyyy");
-                string urlImagen = $"https://images.igdb.com/igdb/image/upload/t_cover_big/{game.cover.image_id}.jpg";
+                
                 Juego juegoAux = new Juego
                     {
                         Id = game.id,
@@ -84,10 +107,13 @@ public class JuegoController : ControllerBase
 
     [HttpPost]
     public IActionResult obtenerJuego([FromBody] Juego juego)
-    {
+    {   
+        
         int count = _context.Juegos.Count(j => j.Nombre == juego.Nombre);
         if(count == 0){
-            return Ok(agregarJuego(juego));
+            _context.Add(juego);
+            _context.SaveChanges();
+            return Ok(juego);
         }else{
             var buscarJuego = _context.Juegos.FirstOrDefault(j => j.Id == juego.Id);
             return Ok(buscarJuego);
