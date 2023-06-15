@@ -235,16 +235,19 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPut("cambiar-foto")]
-    public IActionResult cambiarFoto(IFormFile imagen){
+    public async Task<IActionResult> cambiarFoto(IFormFile imagen){
         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
         // Upload
 
         var tempPath = Path.GetTempFileName();
         using (var stream = new FileStream(tempPath, FileMode.Create))
         {
-            imagen.CopyToAsync(stream);
+            await imagen.CopyToAsync(stream);
         }
         
+        if(usuarioLogeado.publicIdImagen != null || usuarioLogeado.publicIdImagen != ""){
+            eliminarImagen(usuarioLogeado.publicIdImagen);
+        }
         
         var uploadParams = new ImageUploadParams()
         {
@@ -253,12 +256,12 @@ public class UsuarioController : ControllerBase
             PublicIdPrefix = "gamerask_"
 
         };
-        var uploadResults = cloudinary.Upload(uploadParams);
-        
-        
+        var uploadResults = await cloudinary.UploadAsync(uploadParams);
+
 
         
         usuarioLogeado.Imagen = uploadResults.Url.ToString();
+        usuarioLogeado.publicIdImagen = uploadResults.PublicId;
 
         _context.SaveChanges();
         uploadParams = null;
@@ -267,16 +270,19 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPut("cambiar-portada")]
-    public IActionResult cambiarPortada(IFormFile imagen){
+    public async Task<IActionResult> cambiarPortada(IFormFile imagen){
         Usuario usuarioLogeado = ObtenerUsuarioLogueado();
         // Upload
 
         var tempPath = Path.GetTempFileName();
         using (var stream = new FileStream(tempPath, FileMode.Create))
         {
-            imagen.CopyToAsync(stream);
+            await imagen.CopyToAsync(stream);
         }
         
+        if(usuarioLogeado.publicIdPortada != null || usuarioLogeado.publicIdPortada != ""){
+            eliminarImagen(usuarioLogeado.publicIdPortada);
+        }
         
         var uploadParams = new ImageUploadParams()
         {
@@ -285,15 +291,19 @@ public class UsuarioController : ControllerBase
             PublicIdPrefix = "gamerask_"
 
         };
-        var uploadResults = cloudinary.Upload(uploadParams);
-        
-        
-
+        var uploadResults = await cloudinary.UploadAsync(uploadParams);
         
         usuarioLogeado.Portada = uploadResults.Url.ToString();
-
+        usuarioLogeado.publicIdPortada = uploadResults.PublicId;
         _context.SaveChanges();
+        uploadParams = null;
+        uploadResults = null;
         return Ok(usuarioLogeado.Portada);
+    }
+
+    public async void eliminarImagen(string publicId){
+        DeletionParams deletionParams = new DeletionParams(publicId);
+        var result = await cloudinary.DestroyAsync(deletionParams);
     }
 
     

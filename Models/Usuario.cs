@@ -19,7 +19,10 @@ public class Usuario
     [NotMapped]
     public IFormFile? portadaFile {get; set;}
 
-    
+
+    public string? publicIdImagen {get; set;}
+
+    public string? publicIdPortada {get; set;}
     public Usuario()
     {
        
