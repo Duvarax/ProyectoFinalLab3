@@ -16,7 +16,7 @@ public class Pregunta
     public IFormFile? capturaFile {get; set;}
     public int? id_juego {get; set;}
     [ForeignKey(nameof(id_juego))]
-    public Juego ?juego {get; set;}
+    public Juego? juego {get; set;}
 
     public string? publicIdCaptura {get; set;}
     

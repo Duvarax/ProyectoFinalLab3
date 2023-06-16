@@ -11,15 +11,11 @@ public class Respuesta
     public int? id_usuario {get; set;}
     [ForeignKey(nameof(id_usuario))]
     public Usuario? usuario {get; set;}
-    public string? captura {get; set;}
-    [NotMapped]
-    public IFormFile? capturaFile {get; set;}
     public int? id_pregunta {get; set;}
     [ForeignKey(nameof(id_pregunta))]
     public Pregunta? pregunta {get; set;}
 
-    [NotMapped]
-    public ICollection<Valoracion> Valoraciones {get; set;}
+
 
     
 

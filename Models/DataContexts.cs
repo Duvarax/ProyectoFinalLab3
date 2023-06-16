@@ -19,7 +19,6 @@ namespace ProyectoFinalLab3.Models;
 
 		public DbSet<Valoracion> Valoraciones {get; set;}
 		public DbSet<Reciente> Recientes {get; set;}
-		public DbSet<ImagenAux> imagenaux {get; set;}
 
 		
 	}

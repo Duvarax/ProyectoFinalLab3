@@ -27,11 +27,23 @@ public class RespuestaController : ControllerBase
 
      [HttpPost("guardar")]
      public IActionResult altaRespuesta([FromBody] Respuesta respuesta)
-     {
+     {  
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        if(usuarioLogeado == null){
+            return Unauthorized();
+        }
+        
         if(respuesta != null)
-        {
-            _context.Add(respuesta);
-            return Ok(_context.SaveChanges());
+        {   
+            respuesta.fechaCreacion = DateTime.Now;
+            respuesta.id_pregunta = respuesta.pregunta.Id;
+            respuesta.id_usuario = usuarioLogeado.Id;
+            respuesta.pregunta = null;
+            respuesta.usuario = null;
+            _context.Respuestas.Add(respuesta);
+            _context.ChangeTracker.AutoDetectChangesEnabled = false;
+            _context.SaveChanges();
+            return Ok(respuesta);
         }else
         {
             return BadRequest("Respuesta invalida");
@@ -72,7 +84,7 @@ public class RespuestaController : ControllerBase
             orden.respuesta = respuesta;
             ordenRespuestas.Add(orden);
         }
-        var respuestasOrdenadas = ordenRespuestas.OrderByDescending(o => o.cantidad).ToList();
+        var respuestasOrdenadas = ordenRespuestas.OrderByDescending(o => o.cantidad).Select(o => o.respuesta).ToList();
         return Ok(respuestasOrdenadas);
      }
 

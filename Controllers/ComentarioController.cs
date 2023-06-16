@@ -27,10 +27,20 @@ public class ComentarioController : ControllerBase
      [HttpPost("guardar")]
      public IActionResult altaComentario([FromBody] Comentario comentario)
      {
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        if(usuarioLogeado == null){
+            return Unauthorized();
+        }
         if(comentario != null)
         {
+            comentario.fechaCreacion = DateTime.Now;
+            comentario.id_respuesta = comentario.respuesta.Id;
+            comentario.id_usuario = usuarioLogeado.Id;
+            comentario.usuario = null;
+            comentario.respuesta = null;
             _context.Add(comentario);
-            return Ok(_context.SaveChanges());
+            _context.SaveChanges();
+            return Ok(comentario);
         }else
         {
             return BadRequest("Comentario invalido");

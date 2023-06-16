@@ -36,6 +36,19 @@ public class PreguntaController : ControllerBase
         if(usuarioLogeado == null){
             return Unauthorized();
         }
+        Reciente reciente = _context.Recientes.FirstOrDefault(x => x.id_usuario == usuarioLogeado.Id && x.id_juego == pregunta.juego.Id);
+        if(reciente == null){
+            Reciente recienteCrear = new Reciente{
+                Id=0,
+                id_usuario = usuarioLogeado.Id,
+                id_juego = pregunta.juego.Id,
+                Cantidad = 1
+            };
+            _context.Add(recienteCrear);
+            
+        }else{
+            reciente.Cantidad += 1;
+        }
         
         pregunta.fechaCreacion = DateTime.Now;
         pregunta.id_usuario = usuarioLogeado.Id;
@@ -47,16 +60,7 @@ public class PreguntaController : ControllerBase
         return Ok(pregunta);
      }
 
-    //  public void setCapturaAPregunta(){
-    //     Pregunta pregunta1 = _context.Preguntas
-    //     .OrderByDescending(p => p.Id)
-    //     .First();
-    //     int ultimoId = pregunta1.Id;
-    //     ImagenAux imgAux = _context.imagenaux.First();
-    //     Pregunta pregunta = _context.Preguntas.First(x => x.Id == ultimoId);
-    //     pregunta.captura = imgAux.urlImagen;
-    //     _context.SaveChanges();
-    //  }
+
       [HttpPost("captura")]
       public async Task<IActionResult> setCaptura(IFormFile captura){
           Usuario usuarioLogeado = ObtenerUsuarioLogueado();
@@ -79,9 +83,6 @@ public class PreguntaController : ControllerBase
         ImagenAux img = new ImagenAux();
         img.publicId = uploadResults.PublicId;
         img.urlImagen = uploadResults.Url.ToString();
-        _context.Add(img);
-        _context.SaveChanges();
-        
         
          return Ok(img);
       }
