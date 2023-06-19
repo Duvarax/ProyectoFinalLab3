@@ -25,15 +25,21 @@ public class ValoracionController : ControllerBase
     }
 
      [HttpPost("guardar")]
-     public IActionResult altaValoracion([FromBody] Valoracion valoracion)
+     public IActionResult altaValoracion([FromBody] Respuesta respuesta)
      {
         Usuario usuario = ObtenerUsuarioLogueado();
-        int countUserVal = _context.Valoraciones.Count(v => v.id_usuario == usuario.Id && v.id_respuesta==valoracion.id_respuesta);
+        int countUserVal = _context.Valoraciones.Count(v => v.id_usuario == usuario.Id && v.id_respuesta==respuesta.Id);
         if(countUserVal > 0){
             return Ok(false);
         }
-        if(valoracion != null)
+        if(respuesta != null)
         {
+            Valoracion valoracion = new Valoracion
+            {
+                Id = 0,
+                id_respuesta = respuesta.Id,
+                id_usuario = usuario.Id
+            };
             _context.Add(valoracion);
             return Ok(_context.SaveChanges());
         }else
@@ -42,10 +48,12 @@ public class ValoracionController : ControllerBase
         }
      }
      [HttpDelete("eliminar")]
-     public IActionResult bajaValoracion([FromBody] Valoracion valoracion)
-     {
-        if(valoracion != null)
+     public IActionResult bajaValoracion([FromBody] Respuesta respuesta)
+     {  
+        Usuario usuario = ObtenerUsuarioLogueado();
+        if(respuesta != null)
         {
+            Valoracion valoracion = _context.Valoraciones.FirstOrDefault(v => v.id_usuario == usuario.Id && v.id_respuesta==respuesta.Id);
             _context.Remove(valoracion);
             return Ok(_context.SaveChanges());
         }else
