@@ -70,10 +70,10 @@ public class RespuestaController : ControllerBase
         {
             return Unauthorized();
         }
-        var valoraciones = _context.Valoraciones.Where(v => v.respuesta.id_pregunta == pregunta.Id).ToList();
+        var valoraciones = _context.Valoraciones.Include(v => v.respuesta).Where(v => v.respuesta.id_pregunta == pregunta.Id).ToList();
         List<OrdenRespuestas> ordenRespuestas = new List<OrdenRespuestas>();
         var respuestas = _context.Respuestas
-        .Include(r => r.pregunta)
+        .Include(r => r.pregunta).Include(r => r.pregunta.juego).Include(r => r.pregunta.usuario)
         .Include(r => r.usuario)
         .Where(r => r.id_pregunta == pregunta.Id)
         .ToList();

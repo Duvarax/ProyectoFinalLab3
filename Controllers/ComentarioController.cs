@@ -69,7 +69,7 @@ public class ComentarioController : ControllerBase
         }
 
         return Ok(_context.Comentarios
-        .Include(r => r.respuesta)
+        .Include(r => r.respuesta).Include(r => r.respuesta.usuario)
         .Include(r => r.usuario)
         .Where(r => r.id_respuesta == respuesta.Id)
         .ToList()

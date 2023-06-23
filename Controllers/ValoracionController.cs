@@ -40,6 +40,8 @@ public class ValoracionController : ControllerBase
                 id_respuesta = respuesta.Id,
                 id_usuario = usuario.Id
             };
+            Respuesta respuesta1 = _context.Respuestas.FirstOrDefault(r => r.Id == respuesta.Id);
+            respuesta1.valorada = true;
             _context.Add(valoracion);
             return Ok(_context.SaveChanges());
         }else
@@ -47,18 +49,20 @@ public class ValoracionController : ControllerBase
             return BadRequest("Valoracion invalida");
         }
      }
-     [HttpDelete("eliminar")]
-     public IActionResult bajaValoracion([FromBody] Respuesta respuesta)
+     [HttpDelete("eliminar/{id}")]
+     public IActionResult bajaValoracion(int id)
      {  
         Usuario usuario = ObtenerUsuarioLogueado();
-        if(respuesta != null)
+        if(id != null)
         {
-            Valoracion valoracion = _context.Valoraciones.FirstOrDefault(v => v.id_usuario == usuario.Id && v.id_respuesta==respuesta.Id);
+            Valoracion valoracion = _context.Valoraciones.FirstOrDefault(v => v.id_usuario == usuario.Id && v.id_respuesta==id);
+            Respuesta respuesta = _context.Respuestas.FirstOrDefault(r => r.Id == valoracion.id_respuesta);
+            respuesta.valorada = false;
             _context.Remove(valoracion);
             return Ok(_context.SaveChanges());
         }else
         {
-            return BadRequest("Valoracion invalido");
+            return BadRequest("Valoracion invalida");
         }
      }
 
