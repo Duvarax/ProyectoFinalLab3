@@ -16,13 +16,15 @@ public class JuegoController : ControllerBase
     private readonly DataContext _context;
     private readonly IConfiguration config;
     private readonly IWebHostEnvironment environment;
-    private const string ClientId = "hrf9wxam9zk4vcvevscji61l2jr8wj";
-    private const string ClientSecret = "1az53ys5j6yxmd2t0oku561ouci6qh";
+    private readonly string ClientId;
+    private readonly string ClientSecret;
     public JuegoController(DataContext context, IConfiguration config, IWebHostEnvironment environment)
     {
         this._context = context;
         this.config = config;
         this.environment = environment;
+        ClientId = config["IGDBClientId"];
+        ClientSecret = config["IGDBClientSecret"];
     }
 
     [HttpGet("obtener")]
