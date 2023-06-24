@@ -87,11 +87,19 @@ public class PreguntaController : ControllerBase
          return Ok(img);
       }
 
-      [HttpDelete("eliminar")]
-     public IActionResult bajaPregunta([FromBody] Pregunta pregunta)
+      [HttpDelete("eliminar/{id}")]
+     public IActionResult bajaPregunta(int id)
      {
-        if(pregunta != null)
-        {
+        Usuario usuarioLogeado = ObtenerUsuarioLogueado();
+        if(id != null)
+        {   
+            Pregunta pregunta = _context.Preguntas.FirstOrDefault(p => p.Id == id);
+            if(pregunta.id_usuario != usuarioLogeado.Id){
+                return Unauthorized("No puede eliminar la pregunta de otro usuario");
+            }
+            if(pregunta.publicIdCaptura != null || pregunta.publicIdCaptura != ""){
+                eliminarImagen(pregunta.publicIdCaptura);
+            }
             _context.Remove(pregunta);
             return Ok(_context.SaveChanges());
         }else
@@ -100,6 +108,10 @@ public class PreguntaController : ControllerBase
         }
      }
 
+    public async void eliminarImagen(string publicId){
+        DeletionParams deletionParams = new DeletionParams(publicId);
+        var result = await cloudinary.DestroyAsync(deletionParams);
+    }
 
      [HttpGet]
      public IActionResult obtenerPreguntas()

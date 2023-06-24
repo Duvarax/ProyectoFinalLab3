@@ -85,7 +85,18 @@ public class RespuestaController : ControllerBase
             ordenRespuestas.Add(orden);
         }
         var respuestasOrdenadas = ordenRespuestas.OrderByDescending(o => o.cantidad).Select(o => o.respuesta).ToList();
-        return Ok(respuestasOrdenadas);
+        List<Respuesta> respuestasValoradas = new List<Respuesta>();
+        foreach(var respuesta in respuestasOrdenadas)
+        {
+            int count = _context.Valoraciones.Count(v => v.id_respuesta == respuesta.Id && v.id_usuario == usuario.Id);
+            if(count > 0){
+                respuesta.valorada = true;
+            }else{
+                respuesta.valorada = false;
+            }
+            respuestasValoradas.Add(respuesta);
+        }
+        return Ok(respuestasValoradas);
      }
 
      	private Usuario ObtenerUsuarioLogueado()

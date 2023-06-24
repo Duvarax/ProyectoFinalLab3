@@ -15,6 +15,7 @@ public class Respuesta
     [ForeignKey(nameof(id_pregunta))]
     public Pregunta? pregunta {get; set;}
 
+    [NotMapped]
     public Boolean valorada{get; set;} = false; 
 
 
