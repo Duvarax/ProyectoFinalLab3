@@ -61,7 +61,7 @@ public class JuegoController : ControllerBase
             foreach(var game in games)
             {   
                 
-                long milisegundos = game.first_release_date; // Ejemplo de milisegundos
+                long milisegundos = game.first_release_date; 
                 DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                     .AddMilliseconds(milisegundos);
 
@@ -124,11 +124,10 @@ public class JuegoController : ControllerBase
     
 
 
-    static async Task<string> GetAccessToken()
+    public async Task<string> GetAccessToken()
     {
-        String clientId = "hrf9wxam9zk4vcvevscji61l2jr8wj";
-        String clientSecret = "1az53ys5j6yxmd2t0oku561ouci6qh";
-        string url = $"https://id.twitch.tv/oauth2/token?client_id={clientId}&client_secret={clientSecret}&grant_type=client_credentials";
+
+        string url = $"https://id.twitch.tv/oauth2/token?client_id={ClientId}&client_secret={ClientSecret}&grant_type=client_credentials";
         try{
              using (var httpClient = new HttpClient())
         {
