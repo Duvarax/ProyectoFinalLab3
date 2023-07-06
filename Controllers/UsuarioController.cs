@@ -244,8 +244,8 @@ public class UsuarioController : ControllerBase
         {
             await imagen.CopyToAsync(stream);
         }
-        
-        if(usuarioLogeado.publicIdImagen != null || usuarioLogeado.publicIdImagen != ""){
+        Console.WriteLine(usuarioLogeado.publicIdImagen);
+        if(usuarioLogeado.publicIdImagen != null){
             eliminarImagen(usuarioLogeado.publicIdImagen);
         }
         

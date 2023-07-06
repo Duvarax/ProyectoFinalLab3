@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-06-2023 a las 00:53:02
--- Versión del servidor: 10.4.27-MariaDB
--- Versión de PHP: 8.0.25
+-- Tiempo de generación: 06-07-2023 a las 05:46:41
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,6 +34,13 @@ CREATE TABLE `comentarios` (
   `id_respuesta` int(11) NOT NULL,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Volcado de datos para la tabla `comentarios`
+--
+
+INSERT INTO `comentarios` (`Id`, `Texto`, `fechaCreacion`, `id_respuesta`, `id_usuario`) VALUES
+(3, 'y no se', '2023-07-06 00:46:19', 11, 3);
 
 -- --------------------------------------------------------
 
@@ -78,6 +85,13 @@ CREATE TABLE `preguntas` (
   `publicIdCaptura` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Volcado de datos para la tabla `preguntas`
+--
+
+INSERT INTO `preguntas` (`Id`, `Texto`, `fechaCreacion`, `id_usuario`, `Captura`, `id_juego`, `publicIdCaptura`) VALUES
+(24, 'anda bien?', '2023-07-06 00:39:17', 1, 'http://res.cloudinary.com/dhg4fafod/image/upload/v1688614750/gamerask_/mllado4qzchlsbi6ka2o.jpg', 115, 'gamerask_/mllado4qzchlsbi6ka2o');
+
 -- --------------------------------------------------------
 
 --
@@ -96,7 +110,7 @@ CREATE TABLE `recientes` (
 --
 
 INSERT INTO `recientes` (`id_usuario`, `id_juego`, `Id`, `cantidad`) VALUES
-(1, 115, 3, 2),
+(1, 115, 3, 4),
 (1, 2254, 4, 1),
 (1, 142, 5, 1);
 
@@ -113,6 +127,14 @@ CREATE TABLE `respuestas` (
   `id_pregunta` int(11) NOT NULL,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Volcado de datos para la tabla `respuestas`
+--
+
+INSERT INTO `respuestas` (`Id`, `Texto`, `fechaCreacion`, `id_pregunta`, `id_usuario`) VALUES
+(11, 'si anda re bien', '2023-07-06 00:39:34', 24, 1),
+(12, 'mas o menos', '2023-07-06 00:46:07', 24, 3);
 
 -- --------------------------------------------------------
 
@@ -139,7 +161,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`Id`, `Nombre`, `Apellido`, `NombreUsuario`, `Email`, `Clave`, `Imagen`, `Portada`, `publicIdImagen`, `publicIdPortada`) VALUES
 (1, 'Javier', 'Duvara', 'Duvarax', 'duvara@gmail.com', 'QoAY4q9t5kcEdi8Wk8txbdGar9eutN/uZiErmXORarY=', 'http://res.cloudinary.com/dhg4fafod/image/upload/v1686865615/gamerask_/c1i0fg0e3zqjkz9f5tm5.jpg', 'http://res.cloudinary.com/dhg4fafod/image/upload/v1686801839/gamerask_/cdxf0g7qihql5v1vsuo8.jpg', 'gamerask_/c1i0fg0e3zqjkz9f5tm5', 'gamerask_/cdxf0g7qihql5v1vsuo8'),
-(3, 'laura', 'albornoz', 'laurinha', 'laura@gmail.com', 'QoAY4q9t5kcEdi8Wk8txbdGar9eutN/uZiErmXORarY=', NULL, NULL, NULL, NULL);
+(3, 'laura', 'albornoz', 'laurinha', 'laura@gmail.com', 'QoAY4q9t5kcEdi8Wk8txbdGar9eutN/uZiErmXORarY=', 'http://res.cloudinary.com/dhg4fafod/image/upload/v1688615148/gamerask_/dablafnlmush66glegh1.jpg', NULL, 'gamerask_/dablafnlmush66glegh1', NULL);
 
 -- --------------------------------------------------------
 
@@ -218,7 +240,7 @@ ALTER TABLE `valoraciones`
 -- AUTO_INCREMENT de la tabla `comentarios`
 --
 ALTER TABLE `comentarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `juegos`
@@ -230,7 +252,7 @@ ALTER TABLE `juegos`
 -- AUTO_INCREMENT de la tabla `preguntas`
 --
 ALTER TABLE `preguntas`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `recientes`
@@ -242,7 +264,7 @@ ALTER TABLE `recientes`
 -- AUTO_INCREMENT de la tabla `respuestas`
 --
 ALTER TABLE `respuestas`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
